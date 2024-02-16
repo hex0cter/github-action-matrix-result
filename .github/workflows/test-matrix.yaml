@@ -1,0 +1,49 @@
+name: Build and deploy
+on: push
+
+jobs:
+  test1:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sleep-time: [1, 20, 48, 60]
+      fail-fast: false
+    steps:
+      - name: Build
+        id: build_step
+        run: |
+          sleep ${{ matrix.sleep-time }}
+
+          if [ ${{ matrix.sleep-time }} -gt 30 ]; then
+            exit 0
+          else
+            exit 1
+          fi
+  test2:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sleep-time: [1, 20, 48, 60]
+      fail-fast: false
+    steps:
+      - name: Build
+        id: build_step
+        run: |
+          sleep ${{ matrix.sleep-time }}
+
+          if [ ${{ matrix.sleep-time }} -lt 30 ]; then
+            exit 0
+          else
+            exit 1
+          fi
+  summary:
+    needs:
+      - test1
+      - test2
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          echo "needs.test1.result = '${{ needs.test1.result }}'"
+          echo "needs.test2.result = '${{ needs.test2.result }}'"
